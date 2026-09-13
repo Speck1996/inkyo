@@ -14,17 +14,31 @@ keeps a local cache for instant/offline use.
 
 Optional: Cloudflare R2 if you later self-host custom illustrated tiles.
 
-## Cloudflare Pages (GitHub)
+## Cloudflare Pages / Workers (GitHub)
+
+This app is deployed as a **Worker with static assets** (the Cloudflare "Vite"
+preset creates a Worker). Workers that only serve static assets **cannot have
+build-time variables set in the dashboard**, so the public Supabase config is
+committed in `.env.production` and baked in by Vite at build time.
 
 1. Push the repo to GitHub.
-2. Cloudflare Dashboard -> Workers & Pages -> Create -> Pages -> Connect to Git.
-3. Select the repo. Framework preset **Vite**, build command `npm run build`,
-   output directory `dist`.
-4. Environment variables (Production and Preview):
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-5. Deploy. The free `*.pages.dev` domain is fine; add a custom domain later
-   (free SSL). `public/_headers` and `public/_redirects` are included.
+2. Cloudflare Dashboard -> Workers & Pages -> Create -> Pages/Workers ->
+   Connect to Git.
+3. Framework preset **Vite**, build command `npm run build`, output `dist`.
+4. `wrangler.jsonc` serves `dist/` with SPA fallback
+   (`not_found_handling: single-page-application`). Do **not** add a
+   `public/_redirects` SPA rule; it conflicts with this and causes an
+   infinite-loop error at deploy.
+5. Deploy. The free `*.workers.dev` (or `*.pages.dev`) domain is fine.
+
+### Supabase config
+
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are read from
+`.env.production` (committed, public values). The anon/publishable key is public
+by design - it ships to every browser - and Row Level Security enforces access.
+**Never** commit the `service_role` / secret key.
+
+For local development, `.env.local` (gitignored) can override the same values.
 
 ## Supabase
 
