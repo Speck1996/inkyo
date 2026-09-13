@@ -1,0 +1,17 @@
+{
+  "name": "Inkyo — Japan, illustrated",
+  "short_name": "Inkyo",
+  "description": "Ukiyo-e styled Japan trip planner",
+  "theme_color": "#1b3a5c",
+  "background_color": "#f4ecd8",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
