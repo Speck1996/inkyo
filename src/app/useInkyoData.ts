@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { listPlaces, listReels } from '@/data/repository'
 import { useAppStore } from '@/app/store'
-import { refreshShared } from '@/sync/engine'
+import { publishNow } from '@/sync/engine'
 import { isSyncConfigured } from '@/sync/client'
 
 export function useInkyoData() {
@@ -25,8 +25,8 @@ export function useInkyoData() {
         setLoading(false)
 
         if (!isSyncConfigured) return
-        const result = await refreshShared()
-        if (!active || result.skipped) return
+        await publishNow()
+        if (!active) return
         const [mergedPlaces, mergedReels] = await Promise.all([listPlaces(), listReels()])
         if (!active) return
         setPlaces(mergedPlaces)
@@ -47,9 +47,9 @@ export function useInkyoData() {
   useEffect(() => {
     if (!isSyncConfigured) return
     const onFocus = () => {
-      refreshShared()
+      publishNow()
         .then(async (result) => {
-          if (result.skipped || result.pulled === 0) return
+          if (result.skipped || (result.pulled === 0 && result.pushed === 0)) return
           setPlaces(await listPlaces())
           setReels(await listReels())
         })
